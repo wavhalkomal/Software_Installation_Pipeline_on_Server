@@ -1,0 +1,75 @@
+---
+- name: Install exact approved software from JFrog
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: true
+
+  vars:
+    repository_id: linux-approved-virtual
+
+  pre_tasks:
+    - name: Validate required execution variables
+      ansible.builtin.assert:
+        that:
+          - package_name is defined
+          - package_name | length > 0
+          - package_version is defined
+          - package_version | length > 0
+          - request_id is defined
+        fail_msg: Required approved-installation variables are missing
+
+    - name: Confirm supported operating-system family
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.os_family == "RedHat"
+          - ansible_facts.architecture == "x86_64"
+        fail_msg: This pipeline currently supports only x86_64 Red Hat systems
+
+    - name: Confirm approved JFrog repository is configured
+      ansible.builtin.stat:
+        path: /etc/yum.repos.d/linux-approved.repo
+      register: approved_repository
+
+    - name: Stop when approved repository is unavailable
+      ansible.builtin.assert:
+        that: approved_repository.stat.exists
+        fail_msg: Approved JFrog repository configuration is missing
+
+  tasks:
+    - name: Install exact approved version
+      ansible.builtin.dnf:
+        name: "{{ package_name }}-{{ package_version }}"
+        state: present
+        enablerepo: "{{ repository_id }}"
+        disablerepo: "*"
+        update_cache: true
+        lock_timeout: 120
+      register: package_installation
+
+    - name: Query installed package version
+      ansible.builtin.command:
+        argv:
+          - rpm
+          - -q
+          - --queryformat
+          - "%{VERSION}-%{RELEASE}"
+          - "{{ package_name }}"
+      register: installed_package
+      changed_when: false
+
+    - name: Verify requested version was installed
+      ansible.builtin.assert:
+        that:
+          - installed_package.stdout.startswith(package_version)
+        fail_msg: Installed version does not match the approved version
+
+    - name: Run inventory agent when installed
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/linux-inventory-agent
+          - --output
+          - /var/lib/linux-inventory-agent/inventory.json
+      when: package_name == "linux-inventory-agent"
+      changed_when: package_installation.changed
+

@@ -1,0 +1,48 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python
+        run: python -m compileall -q rpm aws tests
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform format
+        run: terraform -chdir=aws/infrastructure fmt -check
+      - name: Terraform init
+        run: terraform -chdir=aws/infrastructure init -backend=false
+      - name: Terraform validate
+        run: terraform -chdir=aws/infrastructure validate
+
+  ansible:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core
+      - name: Syntax check
+        run: |
+          ansible-playbook --syntax-check -i 'localhost,' ansible/playbooks/install_approved_software.yml
+          ansible-playbook --syntax-check -i 'localhost,' ansible/playbooks/collect_inventory.yml
+

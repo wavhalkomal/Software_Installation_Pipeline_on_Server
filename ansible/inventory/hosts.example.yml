@@ -1,0 +1,13 @@
+---
+all:
+  children:
+    rhel_targets:
+      hosts:
+        tf_instance:
+          ansible_host: REPLACE_WITH_CURRENT_PUBLIC_IP
+          ansible_user: ec2-user
+          ansible_python_interpreter: /usr/bin/python3
+          aws_instance_id: REPLACE_WITH_INSTANCE_ID
+          aws_region: us-east-1
+          environment: dev
+

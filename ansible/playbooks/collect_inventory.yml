@@ -1,0 +1,24 @@
+---
+- name: Collect Linux package inventory
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Run installed inventory agent
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/linux-inventory-agent
+          - --output
+          - /var/lib/linux-inventory-agent/inventory.json
+      changed_when: false
+
+    - name: Read inventory result
+      ansible.builtin.slurp:
+        src: /var/lib/linux-inventory-agent/inventory.json
+      register: inventory_result
+
+    - name: Display inventory summary
+      ansible.builtin.debug:
+        msg: "{{ inventory_result.content | b64decode | from_json }}"
+
