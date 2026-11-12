@@ -1,0 +1,8 @@
+FROM rockylinux:9
+
+RUN dnf install -y rpm-build && dnf clean all
+WORKDIR /workspace
+COPY src/linux_inventory_agent.py /root/rpmbuild/SOURCES/linux_inventory_agent.py
+COPY packaging/linux-inventory-agent.spec /root/rpmbuild/SPECS/linux-inventory-agent.spec
+RUN rpmbuild -bb /root/rpmbuild/SPECS/linux-inventory-agent.spec
+

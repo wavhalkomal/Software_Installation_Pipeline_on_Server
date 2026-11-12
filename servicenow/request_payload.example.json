@@ -1,0 +1,14 @@
+{
+  "request_id": "TASK0020224",
+  "idempotency_key": "TASK0020224-linux-inventory-agent-1.0.0",
+  "servicenow_sys_id": "replace-with-record-sys-id",
+  "instance_id": "replace-with-ec2-instance-id",
+  "aws_region": "us-east-1",
+  "package_name": "linux-inventory-agent",
+  "package_version": "1.0.0-1",
+  "checksum_sha256": "replace-with-rpm-sha256",
+  "requested_execution_time": "2026-11-12T15:30:00Z",
+  "reboot_permitted": false,
+  "approval_status": "approved"
+}
+

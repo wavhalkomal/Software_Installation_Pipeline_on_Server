@@ -1,0 +1,6 @@
+aws_region                 = "us-east-1"
+target_instance_id         = "REPLACE_WITH_INSTANCE_ID"
+integration_api_secret_arn = "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:linux-installation-api-key"
+servicenow_secret_arn      = "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:linux-installation-servicenow"
+attach_instance_profile    = true
+
