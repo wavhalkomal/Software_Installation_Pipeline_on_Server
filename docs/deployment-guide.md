@@ -73,7 +73,19 @@ terraform apply deployment.tfplan
 ```
 
 Terraform creates the API, Lambdas, DynamoDB table, Scheduler role, S3 playbook
-bucket, log group, and managed-node IAM profile association.
+bucket, log group, and managed-node IAM profile. Associate that profile with the
+existing target after apply:
+
+```bash
+chmod +x scripts/associate-instance-profile.sh
+scripts/associate-instance-profile.sh \
+  INSTANCE_ID \
+  "$(terraform -chdir=aws/infrastructure output -raw managed_node_instance_profile)" \
+  us-east-1
+```
+
+If the instance already has an IAM profile, review and safely replace or extend
+its permissions instead of attaching a second profile.
 
 ## 6. Configure JFrog on RHEL
 

@@ -107,12 +107,6 @@ resource "aws_iam_instance_profile" "managed_node" {
   role = aws_iam_role.managed_node.name
 }
 
-resource "aws_iam_instance_profile_association" "target" {
-  count                = var.attach_instance_profile ? 1 : 0
-  instance_id          = var.target_instance_id
-  iam_instance_profile = aws_iam_instance_profile.managed_node.name
-}
-
 resource "aws_iam_role" "lambda" {
   name = "${var.project_name}-lambda"
   assume_role_policy = jsonencode({
